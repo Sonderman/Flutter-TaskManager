@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:taskmanager/Pages/CreateTask.dart';
-import 'package:taskmanager/Pages/FinishedTaskList.dart';
 import 'package:taskmanager/Pages/TaskList.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,7 +11,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  List<Widget> pages = [TaskList(), FinishedTaskList()];
   List<BottomNavigationBarItem> bottomNavItems = [
     BottomNavigationBarItem(icon: Icon(Icons.list), title: Text("MyList")),
     BottomNavigationBarItem(icon: Icon(Icons.done_all), title: Text("Finished"))
@@ -23,15 +20,25 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: pages[_currentIndex],
+        body: TaskList(
+          key: UniqueKey(),
+          isfinished: _currentIndex != 0,
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
             backgroundColor: Colors.blue,
             child: Icon(Icons.add),
             onPressed: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => CreateTask()));
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => CreateTask()))
+                  .then((result) {
+                if (result != null)
+                  setState(() {
+                    print("Home ReRendered");
+                  });
+              });
             }),
         bottomNavigationBar: BottomNavigationBar(
           onTap: (index) => setState(() {

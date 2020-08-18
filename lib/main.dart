@@ -10,14 +10,14 @@ import 'package:taskmanager/locator.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  //get path of your data
+  //get path of your database
   Directory document = await getApplicationDocumentsDirectory();
 
   //assing path to hive
   Hive.init(document.path);
-
-  runApp(MyApp());
+  //sets get_it package
   setupLocator();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -36,7 +36,9 @@ class MyApp extends StatelessWidget {
             if (snap.connectionState == ConnectionState.done)
               return HomePage();
             else
-              return CircularProgressIndicator();
+              return Container(
+                  color: Colors.white,
+                  child: Center(child: CircularProgressIndicator()));
           }),
     );
   }

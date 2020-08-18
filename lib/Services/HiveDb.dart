@@ -1,7 +1,9 @@
 import 'package:hive/hive.dart';
 
 class HiveDb {
+  //global database variable defined here
   Box taskBox;
+
   Future<void> initializeDb() async {
     if (!Hive.isBoxOpen("Tasks"))
       await Hive.openBox("Tasks").then((box) {
@@ -9,7 +11,8 @@ class HiveDb {
       });
   }
 
-  Future<bool> addTask(Map<String, dynamic> task) async {
+  Future<bool> addTask(Map<String, dynamic> task, {bool isDone = false}) async {
+    task["Done"] = isDone;
     try {
       return await taskBox.put(task["ID"], task).then((value) => true);
     } catch (e) {
@@ -18,7 +21,7 @@ class HiveDb {
     }
   }
 
-  List<Map<String, dynamic>> getTasks(String period) {
+  List<Map<String, dynamic>> getTasks(String period, bool isfinished) {
     try {
       //print(taskBox.values.toList());
       List<Map<String, dynamic>> temp = [];
@@ -26,7 +29,7 @@ class HiveDb {
           .map((e) => Map<String, dynamic>.from(e))
           .toList()
           .forEach((map) {
-        if (map.containsValue(period)) {
+        if (map.containsValue(period) && map["Done"] == isfinished) {
           temp.add(map);
         }
       });
