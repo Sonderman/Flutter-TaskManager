@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:taskmanager/Pages/CreateTask.dart';
 import 'package:taskmanager/Pages/FinishedTaskList.dart';
 import 'package:taskmanager/Pages/TaskList.dart';
@@ -20,23 +21,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: pages[_currentIndex],
-      floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.blue,
-          child: Icon(Icons.add),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => CreateTask()));
+    return SafeArea(
+      child: Scaffold(
+        body: pages[_currentIndex],
+        floatingActionButton: FloatingActionButton(
+            backgroundColor: Colors.blue,
+            child: Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => CreateTask()));
+            }),
+        bottomNavigationBar: BottomNavigationBar(
+          onTap: (index) => setState(() {
+            _currentIndex = index;
           }),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (index) => setState(() {
-          _currentIndex = index;
-        }),
-        items: bottomNavItems,
-        currentIndex: _currentIndex,
+          items: bottomNavItems,
+          currentIndex: _currentIndex,
+        ),
       ),
     );
   }
