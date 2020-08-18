@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:taskmanager/Services/HiveDb.dart';
 import 'package:taskmanager/locator.dart';
 import 'package:uuid/uuid.dart';
@@ -40,6 +41,7 @@ class _CreateTaskState extends State<CreateTask> {
       "ID": Uuid().v4(),
       "Name": nameCon.text,
       "Period": myChoice,
+      "RawTime": DateTime.now().millisecondsSinceEpoch
     };
     if (myChoice == "Daily") data["Time"] = timeCon.text;
     return await database.addTask(data);
@@ -50,16 +52,26 @@ class _CreateTaskState extends State<CreateTask> {
     localizations = MaterialLocalizations.of(context);
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.orange[300],
+        backgroundColor: Colors.blueGrey[700],
         appBar: AppBar(
           title: Text("Create Task"),
           centerTitle: true,
         ),
         floatingActionButton: FloatingActionButton(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))),
             onPressed: () async {
               await saveTask().then((value) {
                 if (value) {
                   print("Successful");
+                  Fluttertoast.showToast(
+                      msg: "Task Created",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.blue,
+                      textColor: Colors.white,
+                      fontSize: 16.0);
                   Navigator.pop(context, true);
                 }
               });
@@ -90,16 +102,30 @@ class _CreateTaskState extends State<CreateTask> {
     );
   }
 
-  DropdownButton<String> periodSelection() {
-    return DropdownButton<String>(
-        hint: Text("Choice Time Period"),
-        value: myChoice,
-        items: dropdownList,
-        onChanged: (choice) {
-          setState(() {
-            myChoice = choice;
-          });
-        });
+  Widget periodSelection() {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+      color: Colors.blue[300],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: DropdownButton<String>(
+            dropdownColor: Colors.blue[300],
+            hint: Text("Choice Time Period"),
+            value: myChoice,
+            style: TextStyle(color: Colors.white, fontSize: 20),
+            underline: Container(),
+            items: dropdownList,
+            icon: Icon(
+              Icons.date_range,
+              color: Colors.white,
+            ),
+            onChanged: (choice) {
+              setState(() {
+                myChoice = choice;
+              });
+            }),
+      ),
+    );
   }
 
   Widget timePicker(BuildContext context) {
@@ -133,7 +159,7 @@ class _CreateTaskState extends State<CreateTask> {
                   enabled: false,
                   decoration: InputDecoration(
                       labelStyle: TextStyle(fontSize: 20),
-                      hintText: 'Time not set'),
+                      hintText: 'Select Time (Optional)'),
                 ),
               ),
             ),
@@ -155,7 +181,10 @@ class _CreateTaskState extends State<CreateTask> {
             title: TextField(
               controller: nameCon,
               decoration: InputDecoration(
-                  border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red, width: 2)),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2)),
                   labelText: 'Task Name',
                   labelStyle: TextStyle(fontSize: 20),
                   hintText: 'Enter a task name'),

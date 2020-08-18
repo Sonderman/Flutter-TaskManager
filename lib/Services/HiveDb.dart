@@ -24,16 +24,27 @@ class HiveDb {
   List<Map<String, dynamic>> getTasks(String period, bool isfinished) {
     try {
       //print(taskBox.values.toList());
-      List<Map<String, dynamic>> temp = [];
+      List<Map<String, dynamic>> taskData = [];
       taskBox.values
           .map((e) => Map<String, dynamic>.from(e))
           .toList()
           .forEach((map) {
         if (map.containsValue(period) && map["Done"] == isfinished) {
-          temp.add(map);
+          taskData.add(map);
         }
       });
-      return temp;
+/*
+      for (var i = 0; i < taskData.length; i++) {
+        for (var j = 0; j < taskData.length; j++) {
+          if(taskData[i]!=taskData[j])
+          if (taskData[i]["RawTime"] < taskData[j]["RawTime"]) {
+            var temp=taskData[j];
+            
+          }
+        }
+      }
+*/
+      return taskData;
     } catch (e) {
       print(e);
       return [];

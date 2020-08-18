@@ -12,8 +12,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   List<BottomNavigationBarItem> bottomNavItems = [
-    BottomNavigationBarItem(icon: Icon(Icons.list), title: Text("MyList")),
-    BottomNavigationBarItem(icon: Icon(Icons.done_all), title: Text("Finished"))
+    BottomNavigationBarItem(icon: Icon(Icons.list), title: Text("Task List")),
+    BottomNavigationBarItem(
+        icon: Icon(Icons.done_all), title: Text("Finished Tasks"))
   ];
 
   @override
@@ -26,8 +27,13 @@ class _HomePageState extends State<HomePage> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))),
             backgroundColor: Colors.blue,
-            child: Icon(Icons.add),
+            child: Icon(
+              Icons.add,
+              size: MediaQuery.of(context).size.width / 15,
+            ),
             onPressed: () {
               Navigator.push(
                       context,
@@ -46,6 +52,8 @@ class _HomePageState extends State<HomePage> {
           }),
           items: bottomNavItems,
           currentIndex: _currentIndex,
+          selectedItemColor: Colors.red,
+          iconSize: MediaQuery.of(context).size.width / 15,
         ),
       ),
     );
