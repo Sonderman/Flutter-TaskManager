@@ -1,7 +1,7 @@
 # taskmanager
 
-![assets](taskmanager1.gif)
-![assets](taskmanager2.gif)
+![preview](/assets/taskmanager1.gif)
+![preview](/assets/taskmanager2.gif)
 
 A new Flutter application.
 
