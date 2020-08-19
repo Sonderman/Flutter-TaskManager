@@ -1,5 +1,8 @@
 # taskmanager
 
+![assets](taskmanager1.gif)
+![assets](taskmanager2.gif)
+
 A new Flutter application.
 
 ## Getting Started
