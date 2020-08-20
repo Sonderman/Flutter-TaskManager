@@ -77,18 +77,7 @@ class _TaskListState extends State<TaskList> {
               TextStyle(color: Colors.blue[900], fontWeight: FontWeight.bold),
         ),
         subtitle: task["Time"] != null ? Text(task["Time"]) : null,
-        trailing: widget.isfinished
-            ? IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () async {
-                  await confirmDialog(task).then((value) {
-                    if (value)
-                      setState(() {
-                        database.deleteTask(task["ID"]);
-                      });
-                  });
-                })
-            : Icon(Icons.delete),
+        trailing: Icon(Icons.delete),
       ),
     );
   }
@@ -97,56 +86,55 @@ class _TaskListState extends State<TaskList> {
     return tasks.length != 0
         ? ListView.separated(
             itemBuilder: (_, index) {
-              return widget.isfinished
-                  ? listItem(tasks[index])
-                  : Dismissible(
-                      confirmDismiss: (direction) async {
-                        if (direction == DismissDirection.endToStart) {
-                          final bool res = await confirmDialog(tasks[index]);
-                          return res;
-                        } else {
-                          Fluttertoast.showToast(
-                              msg: "Task Finished",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.green,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                          return await database
-                              .addTask(tasks[index], isDone: true)
-                              .then((value) => value);
-                        }
-                      },
-                      secondaryBackground: Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0)),
-                        child: Center(
-                          child: Text(
-                            'Delete',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        color: Colors.red,
-                      ),
-                      background: Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0)),
-                        child: Center(
-                          child: Text(
-                            'Move To Finished',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        color: Colors.green,
-                      ),
-                      child: listItem(tasks[index]),
-                      key: UniqueKey(),
-                    );
+              return Dismissible(
+                direction: widget.isfinished
+                    ? DismissDirection.endToStart
+                    : DismissDirection.horizontal,
+                confirmDismiss: (direction) async {
+                  if (direction == DismissDirection.endToStart) {
+                    final bool res = await confirmDialog(tasks[index]);
+                    return res;
+                  } else {
+                    Fluttertoast.showToast(
+                        msg: "Task Finished",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                    return await database
+                        .addTask(tasks[index], isDone: true)
+                        .then((value) => value);
+                  }
+                },
+                secondaryBackground: Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0)),
+                  child: Center(
+                    child: Text(
+                      'Delete',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  color: Colors.red,
+                ),
+                background: Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0)),
+                  child: Center(
+                    child: Text(
+                      'Move To Finished',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  color: Colors.green,
+                ),
+                child: listItem(tasks[index]),
+                key: UniqueKey(),
+              );
             },
             separatorBuilder: (_, index) => Divider(
                   color: Colors.transparent,
