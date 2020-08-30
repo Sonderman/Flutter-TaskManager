@@ -7,7 +7,7 @@ import 'package:taskmanager/Pages/Home.dart';
 import 'package:taskmanager/Services/HiveDb.dart';
 import 'package:taskmanager/locator.dart';
 
-Future<void> main() async {
+main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   //get path of your database
