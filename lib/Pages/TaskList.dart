@@ -6,7 +6,7 @@ import 'package:taskmanager/locator.dart';
 
 class TaskList extends StatefulWidget {
   final bool isfinished;
-  TaskList({Key key, @required this.isfinished}) : super(key: key);
+  const TaskList({Key? key, required this.isfinished}) : super(key: key);
 
   @override
   _TaskListState createState() => _TaskListState();
@@ -23,8 +23,8 @@ class _TaskListState extends State<TaskList> {
         child: Scaffold(
             appBar: AppBar(
               title: widget.isfinished
-                  ? Text("Finished Tasks")
-                  : Text("Active Tasks"),
+                  ? const Text("Finished Tasks")
+                  : const Text("Active Tasks"),
               centerTitle: true,
               bottom: TabBar(
                 //unselectedLabelColor: Colors.orangeAccent,
@@ -38,7 +38,7 @@ class _TaskListState extends State<TaskList> {
             backgroundColor: Colors.blueGrey[700],
             body: Column(
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Expanded(
@@ -77,13 +77,13 @@ class _TaskListState extends State<TaskList> {
               TextStyle(color: Colors.blue[900], fontWeight: FontWeight.bold),
         ),
         subtitle: task["Time"] != null ? Text(task["Time"]) : null,
-        trailing: Icon(Icons.delete),
+        trailing: const Icon(Icons.delete),
       ),
     );
   }
 
   Widget listView(List<Map<String, dynamic>> tasks) {
-    return tasks.length != 0
+    return tasks.isNotEmpty
         ? ListView.separated(
             itemBuilder: (_, index) {
               return Dismissible(
@@ -111,7 +111,7 @@ class _TaskListState extends State<TaskList> {
                 secondaryBackground: Card(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0)),
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       'Delete',
                       style: TextStyle(
@@ -123,7 +123,7 @@ class _TaskListState extends State<TaskList> {
                 background: Card(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0)),
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       'Move To Finished',
                       style: TextStyle(
@@ -136,7 +136,7 @@ class _TaskListState extends State<TaskList> {
                 key: UniqueKey(),
               );
             },
-            separatorBuilder: (_, index) => Divider(
+            separatorBuilder: (_, index) => const Divider(
                   color: Colors.transparent,
                 ),
             itemCount: tasks.length)
@@ -144,14 +144,14 @@ class _TaskListState extends State<TaskList> {
             child: Card(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.0)),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text("No Task Created Yet!"),
                 )),
           );
   }
 
-  Future<bool> confirmDialog(Map<String, dynamic> task) {
+  Future confirmDialog(Map<String, dynamic> task) {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -159,8 +159,8 @@ class _TaskListState extends State<TaskList> {
             content:
                 Text("Are you sure you want to delete \"${task["Name"]}\"?"),
             actions: <Widget>[
-              FlatButton(
-                child: Text(
+              TextButton(
+                child: const Text(
                   "Cancel",
                   style: TextStyle(color: Colors.black),
                 ),
@@ -168,8 +168,8 @@ class _TaskListState extends State<TaskList> {
                   Navigator.of(context).pop(false);
                 },
               ),
-              FlatButton(
-                child: Text(
+              TextButton(
+                child: const Text(
                   "Delete",
                   style: TextStyle(color: Colors.red),
                 ),

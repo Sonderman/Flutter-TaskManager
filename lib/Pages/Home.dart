@@ -3,7 +3,7 @@ import 'package:taskmanager/Pages/CreateTask.dart';
 import 'package:taskmanager/Pages/TaskList.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -12,9 +12,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   List<BottomNavigationBarItem> bottomNavItems = [
-    BottomNavigationBarItem(icon: Icon(Icons.list), title: Text("Task List")),
-    BottomNavigationBarItem(
-        icon: Icon(Icons.done_all), title: Text("Finished Tasks"))
+    const BottomNavigationBarItem(icon: Icon(Icons.list), label: "Task List"),
+    const BottomNavigationBarItem(
+        icon: Icon(Icons.done_all), label: "Finished Tasks")
   ];
 
   @override
@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(15))),
             backgroundColor: Colors.blue,
             child: Icon(
@@ -36,14 +36,15 @@ class _HomePageState extends State<HomePage> {
             ),
             onPressed: () {
               Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => CreateTask()))
-                  .then((result) {
-                if (result != null)
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          const CreateTask())).then((result) {
+                if (result != null) {
                   setState(() {
                     print("Home ReRendered");
                   });
+                }
               });
             }),
         bottomNavigationBar: BottomNavigationBar(

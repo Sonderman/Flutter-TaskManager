@@ -5,7 +5,7 @@ import 'package:taskmanager/locator.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateTask extends StatefulWidget {
-  CreateTask({Key key}) : super(key: key);
+  const CreateTask({Key? key}) : super(key: key);
 
   @override
   _CreateTaskState createState() => _CreateTaskState();
@@ -16,29 +16,29 @@ class _CreateTaskState extends State<CreateTask> {
   TextEditingController dateCon = TextEditingController();
   TextEditingController timeCon = TextEditingController();
   String myChoice = "Daily";
-  DateTime tempDate;
-  TimeOfDay tempTime;
-  MaterialLocalizations localizations;
+  late DateTime tempDate;
+  TimeOfDay? tempTime;
+  late MaterialLocalizations localizations;
   HiveDb database = locator<HiveDb>();
 
   List<DropdownMenuItem<String>> dropdownList = [
-    DropdownMenuItem(
+    const DropdownMenuItem(
       child: Text("Daily"),
       value: "Daily",
     ),
-    DropdownMenuItem(
+    const DropdownMenuItem(
       child: Text("Weekly"),
       value: "Weekly",
     ),
-    DropdownMenuItem(
+    const DropdownMenuItem(
       child: Text("Monthly"),
       value: "Monthly",
     ),
   ];
 
-  Future<bool> saveTask() async {
+  Future<bool?> saveTask() async {
     Map<String, dynamic> data = {
-      "ID": Uuid().v4(),
+      "ID": const Uuid().v4(),
       "Name": nameCon.text,
       "Period": myChoice,
       "RawTime": DateTime.now().millisecondsSinceEpoch
@@ -54,15 +54,15 @@ class _CreateTaskState extends State<CreateTask> {
       child: Scaffold(
         backgroundColor: Colors.blueGrey[700],
         appBar: AppBar(
-          title: Text("Create Task"),
+          title: const Text("Create Task"),
           centerTitle: true,
         ),
         floatingActionButton: FloatingActionButton(
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(15))),
             onPressed: () async {
               await saveTask().then((value) {
-                if (value) {
+                if (value!) {
                   print("Successful");
                   Fluttertoast.showToast(
                       msg: "Task Created",
@@ -76,7 +76,7 @@ class _CreateTaskState extends State<CreateTask> {
                 }
               });
             },
-            child: Icon(
+            child: const Icon(
               Icons.done,
               size: 36,
             )),
@@ -87,11 +87,11 @@ class _CreateTaskState extends State<CreateTask> {
                 height: MediaQuery.of(context).size.height * 0.2,
               ),
               periodSelection(),
-              SizedBox(
+              const SizedBox(
                 height: 25,
               ),
               taskNameTextField(),
-              SizedBox(
+              const SizedBox(
                 height: 25,
               ),
               timePicker(context),
@@ -110,18 +110,18 @@ class _CreateTaskState extends State<CreateTask> {
         padding: const EdgeInsets.all(8.0),
         child: DropdownButton<String>(
             dropdownColor: Colors.blue[300],
-            hint: Text("Choice Time Period"),
+            hint: const Text("Choice Time Period"),
             value: myChoice,
-            style: TextStyle(color: Colors.white, fontSize: 20),
+            style: const TextStyle(color: Colors.white, fontSize: 20),
             underline: Container(),
             items: dropdownList,
-            icon: Icon(
+            icon: const Icon(
               Icons.date_range,
               color: Colors.white,
             ),
             onChanged: (choice) {
               setState(() {
-                myChoice = choice;
+                myChoice = choice!;
               });
             }),
       ),
@@ -137,7 +137,7 @@ class _CreateTaskState extends State<CreateTask> {
           onTap: () async {
             await showTimePicker(
               context: context,
-              initialTime: tempTime ?? TimeOfDay(hour: 12, minute: 00),
+              initialTime: tempTime ?? const TimeOfDay(hour: 12, minute: 00),
             ).then((timePick) {
               if (timePick != null) {
                 tempTime = timePick;
@@ -153,11 +153,11 @@ class _CreateTaskState extends State<CreateTask> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: ListTile(
-                trailing: Icon(Icons.watch_later),
+                trailing: const Icon(Icons.watch_later),
                 title: TextField(
                   controller: timeCon,
                   enabled: false,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       labelStyle: TextStyle(fontSize: 20),
                       hintText: 'Select Time (Optional)'),
                 ),
@@ -180,7 +180,7 @@ class _CreateTaskState extends State<CreateTask> {
           child: ListTile(
             title: TextField(
               controller: nameCon,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red, width: 2)),
                   enabledBorder: OutlineInputBorder(

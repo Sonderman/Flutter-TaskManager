@@ -17,10 +17,12 @@ main() async {
   Hive.init(document.path);
   //sets get_it package
   setupLocator();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,12 +36,13 @@ class MyApp extends StatelessWidget {
       home: FutureBuilder(
           future: locator<HiveDb>().initializeDb(),
           builder: (_, snap) {
-            if (snap.connectionState == ConnectionState.done)
-              return HomePage();
-            else
+            if (snap.connectionState == ConnectionState.done) {
+              return const HomePage();
+            } else {
               return Container(
                   color: Colors.white,
-                  child: Center(child: CircularProgressIndicator()));
+                  child: const Center(child: CircularProgressIndicator()));
+            }
           }),
     );
   }
