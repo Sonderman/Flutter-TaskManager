@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:taskmanager/Pages/Home.dart';
-import 'package:taskmanager/Services/HiveDb.dart';
-import 'package:taskmanager/locator.dart';
+import 'Pages/Home.dart';
+import 'Services/HiveDb.dart';
+import 'locator.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

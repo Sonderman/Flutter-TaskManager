@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:taskmanager/Services/HiveDb.dart';
-import 'package:taskmanager/locator.dart';
 import 'package:uuid/uuid.dart';
 
+import '../Services/HiveDb.dart';
+import '../locator.dart';
+
 class CreateTask extends StatefulWidget {
-  const CreateTask({Key? key}) : super(key: key);
+  const CreateTask({super.key});
 
   @override
   _CreateTaskState createState() => _CreateTaskState();
@@ -23,16 +24,16 @@ class _CreateTaskState extends State<CreateTask> {
 
   List<DropdownMenuItem<String>> dropdownList = [
     const DropdownMenuItem(
-      child: Text("Daily"),
       value: "Daily",
+      child: Text("Daily"),
     ),
     const DropdownMenuItem(
-      child: Text("Weekly"),
       value: "Weekly",
+      child: Text("Weekly"),
     ),
     const DropdownMenuItem(
-      child: Text("Monthly"),
       value: "Monthly",
+      child: Text("Monthly"),
     ),
   ];
 

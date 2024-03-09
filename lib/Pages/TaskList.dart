@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:taskmanager/Services/HiveDb.dart';
-import 'package:taskmanager/locator.dart';
+
+import '../Services/HiveDb.dart';
+import '../locator.dart';
+
 
 class TaskList extends StatefulWidget {
   final bool isfinished;
-  const TaskList({Key? key, required this.isfinished}) : super(key: key);
+  const TaskList({super.key, required this.isfinished});
 
   @override
   _TaskListState createState() => _TaskListState();
@@ -111,6 +113,7 @@ class _TaskListState extends State<TaskList> {
                 secondaryBackground: Card(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0)),
+                  color: Colors.red,
                   child: const Center(
                     child: Text(
                       'Delete',
@@ -118,11 +121,11 @@ class _TaskListState extends State<TaskList> {
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  color: Colors.red,
                 ),
                 background: Card(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0)),
+                  color: Colors.green,
                   child: const Center(
                     child: Text(
                       'Move To Finished',
@@ -130,10 +133,9 @@ class _TaskListState extends State<TaskList> {
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  color: Colors.green,
                 ),
-                child: listItem(tasks[index]),
                 key: UniqueKey(),
+                child: listItem(tasks[index]),
               );
             },
             separatorBuilder: (_, index) => const Divider(

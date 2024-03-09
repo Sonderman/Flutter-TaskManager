@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:taskmanager/Pages/CreateTask.dart';
-import 'package:taskmanager/Pages/TaskList.dart';
+
+import 'CreateTask.dart';
+import 'TaskList.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   _HomePageState createState() => _HomePageState();
