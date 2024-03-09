@@ -29,6 +29,8 @@ class MyApp extends StatelessWidget {
       title: 'Task Manager',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+          useMaterial3: true,
+          //colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
           appBarTheme: AppBarTheme(color: Colors.green[400]),
