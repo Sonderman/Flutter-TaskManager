@@ -13,10 +13,7 @@ class SettingsView extends GetView<SettingsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Settings'), centerTitle: true),
       body: Padding(
         // Responsive padding around the content.
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
@@ -26,19 +23,16 @@ class SettingsView extends GetView<SettingsController> {
             // Section title for theme settings.
             Text(
               'Appearance',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8.h), // Responsive spacing
             Text(
               'Choose your preferred theme mode.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).hintColor,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
             ),
             SizedBox(height: 20.h), // Responsive spacing
-
             // Obx widget to make the theme selection UI reactive.
             // It rebuilds whenever controller.selectedThemeMode changes.
             Obx(
@@ -74,8 +68,29 @@ class SettingsView extends GetView<SettingsController> {
                 ],
               ),
             ),
-            // Add more settings options here if needed in the future.
-            // Example: Divider(), Text('Notifications'), SwitchListTile(...)
+            // Notification settings section
+            Divider(height: 40.h),
+            Text(
+              'Notifications',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Enable or disable task notifications',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+            ),
+            SizedBox(height: 20.h),
+            Obx(
+              () => SwitchListTile(
+                title: Text('Enable Notifications'),
+                value: controller.notificationsEnabled.value,
+                onChanged: controller.toggleNotifications,
+                secondary: Icon(Icons.notifications_active_outlined),
+                activeColor: Theme.of(context).colorScheme.primary,
+              ),
+            ),
           ],
         ),
       ),
@@ -98,21 +113,13 @@ class SettingsView extends GetView<SettingsController> {
     required BuildContext context,
   }) {
     return Theme(
-      data: Theme.of(context).copyWith(
-        unselectedWidgetColor: Theme.of(context).hintColor,
-      ),
+      data: Theme.of(context).copyWith(unselectedWidgetColor: Theme.of(context).hintColor),
       child: RadioListTile<ThemeMode>(
-        title: Text(
-          title,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        title: Text(title, style: Theme.of(context).textTheme.bodyMedium),
         value: value,
         groupValue: groupValue,
         onChanged: onChanged,
-        secondary: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.secondary,
-        ),
+        secondary: Icon(icon, color: Theme.of(context).colorScheme.secondary),
         activeColor: Theme.of(context).colorScheme.primary,
         contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
         controlAffinity: ListTileControlAffinity.trailing,

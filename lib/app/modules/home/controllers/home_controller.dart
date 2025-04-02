@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart'; // Import for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taskmanager/app/data/models/task_model.dart';
+import 'package:taskmanager/app/data/services/notification_service.dart'; // Import NotificationService
 import 'package:taskmanager/app/data/services/storage_service.dart';
 import 'package:taskmanager/app/routes/app_routes.dart';
 
@@ -9,10 +11,14 @@ import 'package:taskmanager/app/routes/app_routes.dart';
 /// Manages the state for displaying tasks, handling user interactions like
 /// switching between active/finished tasks, changing periods (Daily, Weekly, Monthly),
 /// marking tasks as done, deleting tasks, and navigating to other screens.
+/// Also handles canceling/rescheduling notifications when task status changes or task is deleted.
 class HomeController extends GetxController with GetSingleTickerProviderStateMixin {
   /// Access to the storage service for task persistence.
   /// Declared as 'late final' and initialized in 'onInit' to ensure the service is ready.
   late final StorageService _storageService;
+
+  /// Access to the notification service.
+  late final NotificationService _notificationService;
 
   /// TabController for managing the Daily, Weekly, Monthly tabs.
   late TabController tabController;
@@ -33,9 +39,9 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   @override
   void onInit() {
     super.onInit();
-    // Initialize the StorageService instance.
-    // This ensures we get the service only after InitialBinding has completed its async setup.
+    // Initialize services.
     _storageService = Get.find<StorageService>();
+    _notificationService = Get.find<NotificationService>(); // Initialize NotificationService
 
     // Initialize the TabController with 3 tabs.
     // vsync: this links the TabController's animation to this controller's lifecycle.
@@ -117,12 +123,44 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
 
   /// Marks a task as finished.
   ///
-  /// Updates the task's status in the storage and refreshes the task list.
-  /// [task]: The [Task] to mark as finished.
+  /// Updates the task's status in the storage, refreshes the task list,
+  /// and cancels or reschedules notifications if applicable.
+  /// [task]: The [Task] to update.
+  /// [isDone]: The new completion status.
   Future<void> markTaskAsDone(Task task, {required bool isDone}) async {
-    task.isDone = isDone;
-    await _storageService.updateTask(task);
-    // Update the _allTasks list to trigger the listener and refilter.
+    task.isDone = isDone; // Update the task object locally first
+    await _storageService.updateTask(task); // Persist the change
+
+    // --- Handle Notifications ---
+    // Check if it's a daily task with a scheduled time
+    if (task.period == "Daily" && task.time != null) {
+      final int notificationId = _notificationService.getNotificationId(
+        task.id,
+      ); // Use public method
+      if (isDone) {
+        // If task is marked as done, cancel the notification
+        await _notificationService.cancelNotification(notificationId);
+        if (kDebugMode) {
+          print('Cancelled notification for task: ${task.id} (ID: $notificationId)');
+        }
+      } else {
+        // If task is marked as active again, reschedule the notification
+        await _notificationService.scheduleDailyNotification(
+          taskId: task.id,
+          title: task.name,
+          body: 'Reminder for your daily task!',
+          time: task.time!,
+        );
+        if (kDebugMode) {
+          print(
+            'Rescheduled notification for task: ${task.id} (ID: $notificationId) at ${task.time}',
+          );
+        }
+      }
+    }
+    // --- End Handle Notifications ---
+
+    // Update the local _allTasks list to trigger UI refresh via listeners.
     final index = _allTasks.indexWhere((t) => t.id == task.id);
     if (index != -1) {
       _allTasks[index] = task;
@@ -155,11 +193,32 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       confirmTextColor: Colors.white,
       buttonColor: Colors.red,
       onConfirm: () async {
+        // Find the task before deleting to check for notification
+        final taskToDelete = _allTasks.firstWhereOrNull((t) => t.id == taskId);
+
         try {
           Get.back(); // Close the dialog first
+
+          // --- Cancel Notification if needed ---
+          if (taskToDelete != null && taskToDelete.period == "Daily" && taskToDelete.time != null) {
+            final int notificationId = _notificationService.getNotificationId(
+              taskToDelete.id,
+            ); // Use public method
+            await _notificationService.cancelNotification(notificationId);
+            if (kDebugMode) {
+              print(
+                'Cancelled notification for deleted task: ${taskToDelete.id} (ID: $notificationId)',
+              );
+            }
+          }
+          // --- End Cancel Notification ---
+
+          // Proceed with deletion from storage
           await _storageService.deleteTask(taskId);
-          // Remove the task from the _allTasks list to trigger the listener and refilter.
+          // Remove the task from the local list to update UI
           _allTasks.removeWhere((t) => t.id == taskId);
+          // _filterTasks(); // Filter is triggered by _allTasks listener now
+
           Get.snackbar(
             'Deleted',
             '"$taskName" has been deleted.',

@@ -3,7 +3,6 @@ import 'package:taskmanager/app/modules/create_task/bindings/create_task_binding
 import 'package:taskmanager/app/modules/create_task/views/create_task_view.dart';
 import 'package:taskmanager/app/modules/home/bindings/home_binding.dart';
 import 'package:taskmanager/app/modules/home/views/home_view.dart';
-import 'package:taskmanager/app/modules/settings/bindings/settings_binding.dart';
 import 'package:taskmanager/app/modules/settings/views/settings_view.dart';
 import 'app_routes.dart'; // Import the route names
 
@@ -34,7 +33,6 @@ class AppPages {
     GetPage(
       name: AppRoutes.settings,
       page: () => const SettingsView(), // Widget builder for settings screen
-      binding: SettingsBinding(), // Binding for SettingsController
       // transition: Transition.rightToLeft, // Optional transition
     ),
     // Add more GetPage entries here for other routes as the app grows.

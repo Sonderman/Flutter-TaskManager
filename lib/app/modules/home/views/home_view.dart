@@ -189,46 +189,66 @@ class HomeView extends GetView<HomeController> {
         label: "Delete",
       ),
       // The actual task item content displayed in a Card
-      child: Card(
-        elevation: 2, // Subtle shadow
-        child: ListTile(
-          contentPadding: EdgeInsets.symmetric(
-            vertical: 8.h,
-            horizontal: 16.w,
-          ), // Responsive padding
-          // Leading icon (check mark) only shown for active tasks
-          leading:
-              controller.currentBottomNavIndex.value == 0
-                  ? Icon(Icons.radio_button_unchecked, color: Get.theme.colorScheme.primary)
-                  : Icon(Icons.check_circle, color: Colors.green), // Show check for finished tasks
-          // Task name
-          title: Text(
-            task.name,
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              // Add strikethrough if task is done
-              decoration: task.isDone ? TextDecoration.lineThrough : null,
-              color: task.isDone ? Colors.grey : null,
+      child: Stack(
+        children: [
+          Card(
+            elevation: 2, // Subtle shadow
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 8.h,
+                horizontal: 16.w,
+              ), // Responsive padding
+              // Leading icon (check mark) only shown for active tasks
+              leading:
+                  controller.currentBottomNavIndex.value == 0
+                      ? Icon(Icons.radio_button_unchecked, color: Get.theme.colorScheme.primary)
+                      : Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                      ), // Show check for finished tasks
+              // Task name
+              title: Text(
+                task.name,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  // Add strikethrough if task is done
+                  decoration: task.isDone ? TextDecoration.lineThrough : null,
+                  color: task.isDone ? Colors.grey : null,
+                ),
+              ),
+              // Optional time display for daily tasks
+              subtitle:
+                  task.time != null && task.period == "Daily"
+                      ? Text(task.time!, style: TextStyle(fontSize: 13.sp, color: Colors.grey[600]))
+                      : null,
+              // Trailing delete icon (visual cue, action handled by Dismissible)
+              trailing: Builder(
+                builder:
+                    (context) => Icon(
+                      Icons.delete_outline,
+                      color:
+                          Theme.of(context).brightness == Brightness.light
+                              ? Colors.red
+                              : Colors.grey[400],
+                    ),
+              ),
             ),
           ),
-          // Optional time display for daily tasks
-          subtitle:
-              task.time != null && task.period == "Daily"
-                  ? Text(task.time!, style: TextStyle(fontSize: 13.sp, color: Colors.grey[600]))
-                  : null,
-          // Trailing delete icon (visual cue, action handled by Dismissible)
-          trailing: Builder(
-            builder:
-                (context) => Icon(
-                  Icons.delete_outline,
-                  color:
-                      Theme.of(context).brightness == Brightness.light
-                          ? Colors.red
-                          : Colors.grey[400],
+          Positioned.fill(
+            child: Center(
+              child: Text(
+                'Swipe',
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.white.withOpacity(0.2),
                 ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart'; // Import for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taskmanager/app/data/models/task_model.dart';
+import 'package:taskmanager/app/data/services/notification_service.dart'; // Import NotificationService
 import 'package:taskmanager/app/data/services/storage_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -9,9 +10,13 @@ import 'package:uuid/uuid.dart';
 ///
 /// Manages the state of the task creation form, including text input,
 /// period selection, time picking, and saving the new task.
+/// Also handles scheduling notifications for daily tasks with a specific time.
 class CreateTaskController extends GetxController {
   /// Access to the storage service for saving tasks.
   final StorageService _storageService = Get.find<StorageService>();
+
+  /// Access to the notification service for scheduling reminders.
+  final NotificationService _notificationService = Get.find<NotificationService>();
 
   /// Text editing controller for the task name input field.
   final TextEditingController nameController = TextEditingController();
@@ -96,24 +101,49 @@ class CreateTaskController extends GetxController {
       try {
         // Add the task using the storage service.
         await _storageService.addTask(newTask);
-        _storageService.taskChangeCounter.value++;
-        Get.back();
+        _storageService.taskChangeCounter.value++; // Notify listeners about the change
+
+        // --- Schedule Notification ---
+        // Check if it's a daily task and has a specific time set.
+        if (newTask.period == "Daily" && newTask.time != null) {
+          try {
+            // Schedule a daily repeating notification.
+            await _notificationService.scheduleDailyNotification(
+              taskId: newTask.id,
+              title: 'Reminder for your daily task!', // Use task name as title
+              body: newTask.name,
+              time: newTask.time!, // Pass the "HH:mm" time string
+            );
+            if (kDebugMode) {
+              print('Scheduled notification for task: ${newTask.id} at ${newTask.time}');
+            }
+          } catch (notificationError) {
+            if (kDebugMode) {
+              print('Notification scheduling error: $notificationError');
+            }
+            // Continue even if notification fails
+          }
+        }
+        // --- End Notification Scheduling ---
+
+        Get.back(); // Close the create task screen
         Get.snackbar(
           'Success',
-          'Task created successfully.',
+          'Task "${newTask.name}" created successfully',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,
+          duration: const Duration(seconds: 2),
         );
       } catch (e) {
         // Show error message if saving fails.
-        Get.back();
         Get.snackbar(
           'Error',
-          'Failed to save task: $e',
+          'Failed to save task "${nameController.text}": ${e.toString().replaceAll('Exception:', '').trim()}',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
+          duration: const Duration(seconds: 3),
         );
         if (kDebugMode) {
           print('Error saving task: $e');
@@ -131,6 +161,9 @@ class CreateTaskController extends GetxController {
   String? validateTaskName(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Please enter a task name';
+    }
+    if (value.trim().length > 50) {
+      return 'Task name cannot exceed 50 characters';
     }
     return null;
   }

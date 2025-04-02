@@ -4,8 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:taskmanager/app/core/theme/app_theme.dart';
+import 'package:taskmanager/app/data/services/notification_service.dart';
 import 'package:taskmanager/app/data/services/storage_service.dart';
 import 'package:taskmanager/app/data/services/theme_service.dart';
+import 'package:taskmanager/app/modules/settings/controllers/settings_controller.dart';
 import 'package:taskmanager/app/routes/app_pages.dart';
 
 /// The main entry point of the application.
@@ -25,6 +27,9 @@ Future<void> setUpServices() async {
   await GetStorage.init();
   Get.put<ThemeService>(ThemeService(), permanent: true);
   Get.put<StorageService>(StorageService(), permanent: true);
+  final notificationService = Get.put<NotificationService>(NotificationService(), permanent: true);
+  await notificationService.initialize();
+  Get.put<SettingsController>(SettingsController(), permanent: true);
 }
 
 class MyApp extends StatelessWidget {
