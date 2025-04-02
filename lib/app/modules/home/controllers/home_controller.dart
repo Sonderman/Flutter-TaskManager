@@ -84,10 +84,25 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     final String selectedPeriod = periods[tabController.index];
 
     // Filter the tasks and update the reactive list.
-    final List<Task> currentlyFiltered =
+    List<Task> currentlyFiltered =
         _allTasks.where((task) {
           return task.isDone == isFinished && task.period == selectedPeriod;
         }).toList();
+
+    // Sort daily tasks by time
+    if (selectedPeriod == "Daily") {
+      currentlyFiltered.sort((a, b) {
+        if (a.time != null && b.time != null) {
+          return a.time!.compareTo(b.time!);
+        } else if (a.time != null) {
+          return -1; // a comes first
+        } else if (b.time != null) {
+          return 1; // b comes first
+        } else {
+          return 0; // no sorting needed
+        }
+      });
+    }
 
     filteredTasks.assignAll(currentlyFiltered);
   }
@@ -104,23 +119,23 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   ///
   /// Updates the task's status in the storage and refreshes the task list.
   /// [task]: The [Task] to mark as finished.
-  Future<void> markTaskAsDone(Task task) async {
-    task.isDone = true;
+  Future<void> markTaskAsDone(Task task, {required bool isDone}) async {
+    task.isDone = isDone;
     await _storageService.updateTask(task);
     // Update the _allTasks list to trigger the listener and refilter.
-    // Find the task in the main list and update its status directly.
     final index = _allTasks.indexWhere((t) => t.id == task.id);
     if (index != -1) {
-      _allTasks[index] = task; // Update the item in the list
-      _allTasks.refresh(); // Notify listeners
+      _allTasks[index] = task;
+      _allTasks.refresh();
     } else {
-      _loadTasks(); // Fallback: reload all tasks if not found (shouldn't happen)
+      _loadTasks();
     }
+    _filterTasks();
     Get.snackbar(
       'Success',
-      '"${task.name}" marked as finished.',
+      '"${task.name}" marked as ${isDone ? "finished" : "active"}.',
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
+      backgroundColor: isDone ? Colors.green : Colors.blue,
       colorText: Colors.white,
     );
   }

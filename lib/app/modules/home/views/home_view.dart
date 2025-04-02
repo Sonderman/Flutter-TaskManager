@@ -18,9 +18,10 @@ class HomeView extends GetView<HomeController> {
       // AppBar with title and settings icon
       appBar: AppBar(
         // Obx ensures the title updates reactively when the bottom nav index changes.
-        title: Obx(() => Text(
-              controller.currentBottomNavIndex.value == 0 ? "Active Tasks" : "Finished Tasks",
-            )),
+        title: Obx(
+          () =>
+              Text(controller.currentBottomNavIndex.value == 0 ? "Active Tasks" : "Finished Tasks"),
+        ),
         centerTitle: true,
         actions: [
           // Settings icon button
@@ -42,16 +43,18 @@ class HomeView extends GetView<HomeController> {
               dividerHeight: 1.sp,
               indicatorWeight: 4.sp,
               controller: controller.tabController, // Link to the controller's TabController
-              tabs: controller.periods
-                  .map((period) => _buildTabItem(period)) // Build tabs dynamically
-                  .toList(),
+              tabs:
+                  controller.periods
+                      .map((period) => _buildTabItem(period)) // Build tabs dynamically
+                      .toList(),
             ),
             Expanded(
               child: TabBarView(
                 controller: controller.tabController, // Link to the controller's TabController
-                children: controller.periods
-                    .map((_) => _buildTaskList()) // Build task list view for each tab
-                    .toList(),
+                children:
+                    controller.periods
+                        .map((_) => _buildTaskList()) // Build task list view for each tab
+                        .toList(),
               ),
             ),
           ],
@@ -73,30 +76,31 @@ class HomeView extends GetView<HomeController> {
           iconSize: 40, // Increased icon size
           selectedItemColor: Theme.of(context).brightness == Brightness.dark ? Colors.orange : null,
           unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
-          selectedLabelStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-          unselectedLabelStyle: TextStyle(
-            fontSize: 14,
-          ),
+          selectedLabelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          unselectedLabelStyle: TextStyle(fontSize: 14),
           elevation: 8, // Add shadow to bar
           type: BottomNavigationBarType.fixed, // Better visual consistency
           items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.list_alt, color: Get.theme.colorScheme.onSurface.withOpacity(0.6)),
-              activeIcon: Icon(Icons.list_alt,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Get.theme.colorScheme.primary),
+              activeIcon: Icon(
+                Icons.list_alt,
+                color:
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Get.theme.colorScheme.primary,
+              ),
               label: "Active",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.done_all, color: Get.theme.colorScheme.onSurface.withOpacity(0.6)),
-              activeIcon: Icon(Icons.done_all,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Get.theme.colorScheme.primary),
+              activeIcon: Icon(
+                Icons.done_all,
+                color:
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Get.theme.colorScheme.primary,
+              ),
               label: "Finished",
             ),
           ],
@@ -112,11 +116,7 @@ class HomeView extends GetView<HomeController> {
     return Tab(
       child: Text(
         name,
-        style: TextStyle(
-          fontSize: 18.sp,
-          fontFamily: 'Roboto',
-          fontWeight: FontWeight.w500,
-        ),
+        style: TextStyle(fontSize: 18.sp, fontFamily: 'Roboto', fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -154,30 +154,32 @@ class HomeView extends GetView<HomeController> {
     return Dismissible(
       key: Key(task.id), // Unique key for Dismissible
       // Configure swipe directions based on task completion status
-      direction: controller.currentBottomNavIndex.value == 0
-          ? DismissDirection
-              .horizontal // Allow swipe left (done) and right (delete) for active tasks
-          : DismissDirection.endToStart, // Allow only swipe right (delete) for finished tasks
+      direction: DismissDirection.horizontal,
       // Confirmation logic before dismissing
       confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd &&
-            controller.currentBottomNavIndex.value == 0) {
-          // Swipe right on active task: Mark as done
-          await controller.markTaskAsDone(task);
-          return false; // Don't actually dismiss, just update state
-        } else if (direction == DismissDirection.endToStart) {
+        if (direction == DismissDirection.startToEnd) {
+          if (controller.currentBottomNavIndex.value == 1) {
+            // Swipe right on finished task: Mark as active
+            await controller.markTaskAsDone(task, isDone: false);
+          } else {
+            // Swipe right on active task: Mark as finished
+            await controller.markTaskAsDone(task, isDone: true);
+          }
+          return false;
+        }
+        if (direction == DismissDirection.endToStart) {
           // Swipe left (active) or right (finished): Delete
           await controller.deleteTask(task.id, task.name);
           return false; // Don't actually dismiss, controller handles removal
         }
         return false; // Should not happen
       },
-      // Background shown when swiping right (Mark as Done)
+      // Background shown when swiping right (Mark as active)
       background: _buildDismissibleBackground(
-        color: Colors.green,
-        icon: Icons.done,
+        color: controller.currentBottomNavIndex.value == 0 ? Colors.green : Colors.blue,
+        icon: controller.currentBottomNavIndex.value == 0 ? Icons.done : Icons.arrow_back,
         alignment: Alignment.centerLeft,
-        label: "Mark as Done",
+        label: controller.currentBottomNavIndex.value == 0 ? "Mark as Done" : "Mark as Active",
       ),
       // Background shown when swiping left (Delete)
       secondaryBackground: _buildDismissibleBackground(
@@ -190,12 +192,15 @@ class HomeView extends GetView<HomeController> {
       child: Card(
         elevation: 2, // Subtle shadow
         child: ListTile(
-          contentPadding:
-              EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w), // Responsive padding
+          contentPadding: EdgeInsets.symmetric(
+            vertical: 8.h,
+            horizontal: 16.w,
+          ), // Responsive padding
           // Leading icon (check mark) only shown for active tasks
-          leading: controller.currentBottomNavIndex.value == 0
-              ? Icon(Icons.radio_button_unchecked, color: Get.theme.colorScheme.primary)
-              : Icon(Icons.check_circle, color: Colors.green), // Show check for finished tasks
+          leading:
+              controller.currentBottomNavIndex.value == 0
+                  ? Icon(Icons.radio_button_unchecked, color: Get.theme.colorScheme.primary)
+                  : Icon(Icons.check_circle, color: Colors.green), // Show check for finished tasks
           // Task name
           title: Text(
             task.name,
@@ -208,19 +213,20 @@ class HomeView extends GetView<HomeController> {
             ),
           ),
           // Optional time display for daily tasks
-          subtitle: task.time != null && task.period == "Daily"
-              ? Text(
-                  task.time!,
-                  style: TextStyle(fontSize: 13.sp, color: Colors.grey[600]),
-                )
-              : null,
+          subtitle:
+              task.time != null && task.period == "Daily"
+                  ? Text(task.time!, style: TextStyle(fontSize: 13.sp, color: Colors.grey[600]))
+                  : null,
           // Trailing delete icon (visual cue, action handled by Dismissible)
           trailing: Builder(
-            builder: (context) => Icon(
-              Icons.delete_outline,
-              color:
-                  Theme.of(context).brightness == Brightness.light ? Colors.red : Colors.grey[400],
-            ),
+            builder:
+                (context) => Icon(
+                  Icons.delete_outline,
+                  color:
+                      Theme.of(context).brightness == Brightness.light
+                          ? Colors.red
+                          : Colors.grey[400],
+                ),
           ),
         ),
       ),
@@ -249,9 +255,10 @@ class HomeView extends GetView<HomeController> {
           Text(
             label,
             style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12.sp), // Responsive text
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 12.sp,
+            ), // Responsive text
           ),
         ],
       ),

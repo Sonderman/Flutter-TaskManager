@@ -19,6 +19,11 @@ class Task {
   /// Flag indicating whether the task is completed.
   bool isDone;
 
+  /// Toggles the completion status of the task.
+  void toggleDone() {
+    isDone = !isDone;
+  }
+
   /// Creates a new Task instance.
   ///
   /// Requires [id], [name], [period], and [rawTime].

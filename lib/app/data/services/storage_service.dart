@@ -9,13 +9,13 @@ import 'package:taskmanager/app_config.dart';
 /// Provides methods to initialize storage, add, retrieve, update, and delete tasks.
 class StorageService {
   /// The GetStorage container instance used for storing tasks.
-  late final GetStorage _box;
+  late final GetStorage box;
 
   /// Reactive counter to notify listeners of data changes.
   final RxInt taskChangeCounter = 0.obs;
 
   StorageService() {
-    _box = GetStorage();
+    box = GetStorage();
   }
 
   /// Retrieves all tasks currently stored.
@@ -24,7 +24,7 @@ class StorageService {
   List<Task> getTasks() {
     // Read the raw data from storage using the _tasksKey.
     // It's expected to be a List<dynamic>, where each element is a Map<String, dynamic>.
-    final List<dynamic>? tasksData = _box.read<List<dynamic>>(tasksKey);
+    final List<dynamic>? tasksData = box.read<List<dynamic>>(tasksKey);
 
     if (tasksData != null) {
       try {
@@ -35,7 +35,7 @@ class StorageService {
       } catch (e) {
         // Handle potential errors during JSON deserialization (e.g., corrupted data).
 
-        // Optionally clear corrupted data: _box.remove(_tasksKey);
+        // Optionally clear corrupted data: box.remove(_tasksKey);
         return [];
       }
     } else {
@@ -53,7 +53,7 @@ class StorageService {
     // Convert the list of Task objects into a list of JSON maps.
     final List<Map<String, dynamic>> tasksData = tasks.map((task) => task.toJson()).toList();
     // Write the list of maps to storage under the _tasksKey.
-    await _box.write(tasksKey, tasksData);
+    await box.write(tasksKey, tasksData);
   }
 
   /// Adds a new task to the storage.
@@ -117,7 +117,7 @@ class StorageService {
   ///
   /// Use with caution as this permanently removes all task data.
   Future<void> clearAllTasks() async {
-    await _box.remove(tasksKey);
+    await box.remove(tasksKey);
     // Notify listeners
     taskChangeCounter.value++;
     if (kDebugMode) {
