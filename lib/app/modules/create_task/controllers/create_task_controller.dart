@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart'; // Import for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:taskmanager/app/data/models/task_model.dart';
@@ -84,9 +85,10 @@ class CreateTaskController extends GetxController {
         name: nameController.text.trim(), // Get task name from controller
         period: selectedPeriod.value, // Get selected period
         // Include time only if the period is "Daily" and a time was selected.
-        time: selectedPeriod.value == "Daily" && timeController.text.isNotEmpty
-            ? timeController.text
-            : null,
+        time:
+            selectedPeriod.value == "Daily" && timeController.text.isNotEmpty
+                ? timeController.text
+                : null,
         rawTime: DateTime.now().millisecondsSinceEpoch, // Timestamp for sorting
         isDone: false, // New tasks are initially not done
       );
@@ -94,18 +96,18 @@ class CreateTaskController extends GetxController {
       try {
         // Add the task using the storage service.
         await _storageService.addTask(newTask);
-        // Show success message.
+        _storageService.taskChangeCounter.value++;
+        Get.back();
         Get.snackbar(
           'Success',
-          'Task "${newTask.name}" created.',
+          'Task created successfully.',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        // Navigate back to the previous screen, indicating success (result: true).
-        Get.back(result: true);
       } catch (e) {
         // Show error message if saving fails.
+        Get.back();
         Get.snackbar(
           'Error',
           'Failed to save task: $e',
@@ -113,10 +115,14 @@ class CreateTaskController extends GetxController {
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
-        print('Error saving task: $e');
+        if (kDebugMode) {
+          print('Error saving task: $e');
+        }
       }
     } else {
-      print('Form validation failed.');
+      if (kDebugMode) {
+        print('Form validation failed.');
+      }
     }
   }
 

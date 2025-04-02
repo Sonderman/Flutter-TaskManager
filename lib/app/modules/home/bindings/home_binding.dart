@@ -15,9 +15,7 @@ class HomeBinding extends Bindings {
     // via Get.find<HomeController>(). This is efficient for resources.
     // If the controller needs to be available immediately upon route loading,
     // use Get.put(HomeController()) instead.
-    Get.lazyPut<HomeController>(
-      () => HomeController(),
-    );
+    Get.lazyPut<HomeController>(() => HomeController());
 
     // If the HomeController depended on other services specific to this module,
     // they could be initialized here as well.

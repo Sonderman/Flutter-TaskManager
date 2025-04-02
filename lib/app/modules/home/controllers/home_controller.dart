@@ -46,10 +46,17 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     tabController.addListener(_filterTasks);
     // Add a listener to the list of all tasks. If the underlying data changes
     // (e.g., after adding/deleting a task), refilter the list.
-    _allTasks.listen((_) => _filterTasks());
+    // _allTasks.listen((_) => _filterTasks()); // This listener might be redundant now
+
     // Add a listener to the bottom navigation index to refilter when switching
     // between active and finished tasks.
     currentBottomNavIndex.listen((_) => _filterTasks());
+
+    // --- NEW: Listen to changes in StorageService ---
+    _storageService.taskChangeCounter.listen((_) {
+      _loadTasks();
+    });
+    // --- END NEW ---
   }
 
   @override
@@ -62,6 +69,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   /// Loads all tasks from the StorageService into the reactive [_allTasks] list.
   void _loadTasks() {
     _allTasks.assignAll(_storageService.getTasks());
+
     // Initial filtering after loading tasks.
     _filterTasks(); // Call filter initially
   }
@@ -76,9 +84,12 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     final String selectedPeriod = periods[tabController.index];
 
     // Filter the tasks and update the reactive list.
-    filteredTasks.assignAll(_allTasks.where((task) {
-      return task.isDone == isFinished && task.period == selectedPeriod;
-    }).toList());
+    final List<Task> currentlyFiltered =
+        _allTasks.where((task) {
+          return task.isDone == isFinished && task.period == selectedPeriod;
+        }).toList();
+
+    filteredTasks.assignAll(currentlyFiltered);
   }
 
   /// Changes the selected index of the bottom navigation bar.
@@ -127,34 +138,43 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       textCancel: "Cancel",
       textConfirm: "Delete",
       confirmTextColor: Colors.white,
+      buttonColor: Colors.red,
       onConfirm: () async {
-        Get.back(); // Close the dialog first
-        await _storageService.deleteTask(taskId);
-        // Remove the task from the _allTasks list to trigger the listener and refilter.
-        _allTasks.removeWhere((t) => t.id == taskId);
-        Get.snackbar(
-          'Deleted',
-          '"$taskName" has been deleted.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        try {
+          Get.back(); // Close the dialog first
+          await _storageService.deleteTask(taskId);
+          // Remove the task from the _allTasks list to trigger the listener and refilter.
+          _allTasks.removeWhere((t) => t.id == taskId);
+          Get.snackbar(
+            'Deleted',
+            '"$taskName" has been deleted.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        } catch (e) {
+          // Handle any errors that occur during deletion
+          Get.snackbar(
+            'Error',
+            'An error occurred while deleting "$taskName": ${e.toString()}',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        } finally {
+          // Ensure the dialog is always closed
+          Get.back();
+        }
       },
     );
   }
 
   /// Navigates to the Create Task screen.
   ///
-  /// Uses GetX navigation. Refreshes the task list when returning
-  /// if a new task might have been added.
-  void goToCreateTask() async {
-    // Navigate to the create task route.
-    var result = await Get.toNamed(AppRoutes.createTask);
-    // If the CreateTask screen indicates a task was added (e.g., returns true),
-    // reload the tasks.
-    if (result == true) {
-      _loadTasks();
-    }
+  /// Uses GetX navigation.
+  /// Task list refresh is now handled reactively by listening to StorageService.
+  void goToCreateTask() {
+    Get.toNamed(AppRoutes.createTask);
   }
 
   /// Navigates to the Settings screen.

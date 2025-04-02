@@ -27,24 +27,8 @@ Future<void> setUpServices() async {
   Get.put<StorageService>(StorageService(), permanent: true);
 }
 
-/// The root widget of the application.
-///
-/// Sets up ScreenUtil for responsive UI and GetMaterialApp for state management,
-/// routing, and theme handling based on GetX.
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    // Ensure services are initialized before building the widget
-    Get.find<ThemeService>();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,21 +41,16 @@ class _MyAppState extends State<MyApp> {
       minTextAdapt: true, // Adapt text size based on screen constraints
       splitScreenMode: true, // Support split screen mode
       builder: (context, child) {
-        return Obx(() {
-          final themeService = Get.find<ThemeService>();
-          return GetMaterialApp(
-            title: 'Task Manager', // Application title
-            debugShowCheckedModeBanner: false, // Hide the debug banner
-            // --- Theme Configuration ---
-            theme: AppTheme.lightTheme, // Define the light theme
-            darkTheme: AppTheme.darkTheme, // Define the dark theme
-            // Use the theme mode from ThemeService reactively
-            themeMode: themeService.themeMode.value,
-            // --- Routing Configuration ---
-            initialRoute: AppPages.initial, // Define the starting route
-            getPages: AppPages.routes, // Define all available routes/pages
-          );
-        });
+        final themeService = Get.find<ThemeService>();
+        return GetMaterialApp(
+          title: 'Task Manager',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeService.currentTheme,
+          initialRoute: AppPages.initial,
+          getPages: AppPages.routes,
+        );
       },
     );
   }

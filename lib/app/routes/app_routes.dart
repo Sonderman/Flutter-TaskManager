@@ -7,11 +7,7 @@ abstract class AppRoutes {
   // Route name for the main home screen (usually contains the bottom navigation).
   static const home = '/home';
   // Route name for the screen to create a new task.
-  static const createTask = '/create-task';
+  static const createTask = '/create_task';
   // Route name for the settings screen.
   static const settings = '/settings';
-
-  // Potential future routes can be added here, e.g.:
-  // static const TASK_DETAIL = '/task-detail';
-  // static const PROFILE = '/profile';
 }

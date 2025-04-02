@@ -13,13 +13,13 @@ class CreateTaskView extends GetView<CreateTaskController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Create New Task"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Create New Task"), centerTitle: true),
       // Floating Action Button to trigger saving the task.
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: controller.saveTask, // Call controller's save method
+        // Make onPressed async and await the controller method
+        onPressed: () async {
+          await controller.saveTask();
+        },
         icon: const Icon(Icons.save_alt_outlined),
         label: const Text("Save Task"),
         tooltip: 'Save Task',
@@ -36,11 +36,9 @@ class CreateTaskView extends GetView<CreateTaskController> {
               // Section for selecting the task period.
               _buildPeriodSelector(),
               SizedBox(height: 25.h), // Responsive spacing
-
               // Section for entering the task name.
               _buildTaskNameInput(),
               SizedBox(height: 25.h), // Responsive spacing
-
               // Section for picking the time (visible only for "Daily" period).
               _buildTimePicker(context),
               SizedBox(height: 80.h), // Add space at the bottom for FAB
@@ -58,22 +56,34 @@ class CreateTaskView extends GetView<CreateTaskController> {
       () => DropdownButtonFormField<String>(
         value: controller.selectedPeriod.value, // Current value from controller
         // List of DropdownMenuItem widgets built from controller.periodOptions.
-        items: controller.periodOptions.map((String period) {
-          return DropdownMenuItem<String>(
-            value: period,
-            child: Text(period),
-          );
-        }).toList(),
+        items:
+            controller.periodOptions.map((String period) {
+              return DropdownMenuItem<String>(
+                value: period,
+                child: Text(
+                  period,
+                  style: TextStyle(color: Get.isDarkMode ? null : Colors.black87),
+                ),
+              );
+            }).toList(),
+        selectedItemBuilder: (BuildContext context) {
+          return controller.periodOptions.map((String period) {
+            return Text(period, style: TextStyle(color: Get.isDarkMode ? null : Colors.black87));
+          }).toList();
+        },
         // Callback function when a new period is selected.
         onChanged: controller.changePeriod,
         // Styling for the dropdown.
         decoration: InputDecoration(
           labelText: 'Task Period',
           prefixIcon: const Icon(Icons.calendar_today_outlined),
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)), // Responsive radius
-          contentPadding:
-              EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w), // Responsive padding
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ), // Responsive radius
+          contentPadding: EdgeInsets.symmetric(
+            vertical: 12.h,
+            horizontal: 16.w,
+          ), // Responsive padding
         ),
         // Style for the dropdown text.
         style: TextStyle(fontSize: 16.sp), // Responsive font size
@@ -87,13 +97,18 @@ class CreateTaskView extends GetView<CreateTaskController> {
   Widget _buildTaskNameInput() {
     return TextFormField(
       controller: controller.nameController, // Link to controller's text controller
+      onTapOutside: (event) {
+        FocusScope.of(Get.context!).unfocus();
+      },
       decoration: InputDecoration(
         labelText: 'Task Name',
         hintText: 'Enter the name of your task',
         prefixIcon: const Icon(Icons.task_alt_outlined),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)), // Responsive radius
-        contentPadding:
-            EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w), // Responsive padding
+        contentPadding: EdgeInsets.symmetric(
+          vertical: 12.h,
+          horizontal: 16.w,
+        ), // Responsive padding
       ),
       style: TextStyle(fontSize: 16.sp), // Responsive font size
       validator: controller.validateTaskName, // Link to controller's validator function
@@ -117,10 +132,13 @@ class CreateTaskView extends GetView<CreateTaskController> {
             hintText: 'Select a time for the task',
             prefixIcon: const Icon(Icons.access_time_outlined),
             suffixIcon: const Icon(Icons.arrow_drop_down_rounded), // Visual cue for picker
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)), // Responsive radius
-            contentPadding:
-                EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w), // Responsive padding
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+            ), // Responsive radius
+            contentPadding: EdgeInsets.symmetric(
+              vertical: 12.h,
+              horizontal: 16.w,
+            ), // Responsive padding
           ),
           style: TextStyle(fontSize: 16.sp), // Responsive font size
         ),

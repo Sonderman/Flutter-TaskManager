@@ -6,7 +6,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.3+5
 
 environment:
-  sdk: '>=3.0.0 <4.0.0' # Updated SDK constraint for broader compatibility
+  sdk: 3.7.2
 
 
 dependencies:
@@ -17,9 +17,7 @@ dependencies:
   get: ^4.7.2
   get_storage: ^2.1.1 # Local storage solution
   flutter_screenutil: ^5.9.3 # Responsive UI toolkit
-  # Kept packages
   uuid: ^4.5.1 # For generating unique task IDs
-  google_fonts: ^6.2.1 # For custom fonts (can be reviewed later)
 
 dev_dependencies:
   flutter_test:

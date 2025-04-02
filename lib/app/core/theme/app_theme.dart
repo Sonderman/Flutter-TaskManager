@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   AppTheme._();
@@ -7,11 +6,15 @@ class AppTheme {
   static ThemeData get lightTheme => ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: Color(0xFF2D3192).withOpacity(0.3),
+          selectionHandleColor: Color(0xFF2D3192),
+          cursorColor: Color(0xFF2D3192),
+        ),
         colorScheme: ColorScheme.light(
           primary: Color(0xFF2D3192),
           secondary: Color(0xFF006D77),
           surface: Color(0xFFF8F9FA),
-          background: Color(0xFFFFFFFF),
           onPrimary: Colors.white,
           error: Colors.red[700]!,
           onSurface: Colors.black87,
@@ -21,10 +24,11 @@ class AppTheme {
           backgroundColor: Color(0xFF2D3192),
           foregroundColor: Colors.white,
           elevation: 2,
-          titleTextStyle: GoogleFonts.poppins(
+          titleTextStyle: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             height: 1.3,
+            fontFamily: 'Roboto',
           ),
           iconTheme: IconThemeData(color: Colors.white),
         ),
@@ -45,8 +49,6 @@ class AppTheme {
             fontWeight: FontWeight.w500,
             color: Colors.grey[900],
           ),
-        ).apply(
-          fontFamily: GoogleFonts.poppins().fontFamily,
         ),
         cardTheme: CardTheme(
           elevation: 2,
@@ -63,6 +65,20 @@ class AppTheme {
             borderRadius: BorderRadius.circular(15),
           ),
         ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: ColorScheme.light().surface,
+          selectedItemColor: ColorScheme.light().primary,
+          unselectedItemColor: ColorScheme.light().onSurface.withOpacity(0.6),
+          selectedLabelStyle: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontSize: 12,
+          ),
+          elevation: 8,
+          type: BottomNavigationBarType.fixed,
+        ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       );
 
@@ -73,7 +89,6 @@ class AppTheme {
           primary: Color(0xFF9BB1FF),
           secondary: Color(0xFF83C5BE),
           surface: Color(0xFF2F2F2F),
-          background: Color(0xFF121212),
           onPrimary: Colors.black87,
           error: Colors.red[300]!,
           onSurface: Colors.white70,
@@ -83,10 +98,11 @@ class AppTheme {
           backgroundColor: Color(0xFF2F2F2F),
           foregroundColor: Colors.white,
           elevation: 2,
-          titleTextStyle: GoogleFonts.poppins(
+          titleTextStyle: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             height: 1.3,
+            fontFamily: 'Roboto',
           ),
           iconTheme: IconThemeData(color: Colors.white),
         ),
@@ -107,8 +123,6 @@ class AppTheme {
             fontWeight: FontWeight.w500,
             color: Colors.white,
           ),
-        ).apply(
-          fontFamily: GoogleFonts.poppins().fontFamily,
         ),
         cardTheme: CardTheme(
           elevation: 2,
@@ -124,6 +138,20 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: ColorScheme.dark().surface,
+          selectedItemColor: ColorScheme.dark().primary,
+          unselectedItemColor: ColorScheme.dark().onSurface.withOpacity(0.6),
+          selectedLabelStyle: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontSize: 12,
+          ),
+          elevation: 8,
+          type: BottomNavigationBarType.fixed,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       );

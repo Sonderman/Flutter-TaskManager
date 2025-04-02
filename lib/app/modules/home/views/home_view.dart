@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:taskmanager/app/data/models/task_model.dart';
 import 'package:taskmanager/app/modules/home/controllers/home_controller.dart';
 
@@ -37,6 +36,11 @@ class HomeView extends GetView<HomeController> {
         child: Column(
           children: [
             TabBar(
+              labelColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : null,
+              indicatorColor:
+                  Theme.of(context).brightness == Brightness.dark ? Colors.orange : null,
+              dividerHeight: 1.sp,
+              indicatorWeight: 4.sp,
               controller: controller.tabController, // Link to the controller's TabController
               tabs: controller.periods
                   .map((period) => _buildTabItem(period)) // Build tabs dynamically
@@ -66,28 +70,33 @@ class HomeView extends GetView<HomeController> {
         () => BottomNavigationBar(
           currentIndex: controller.currentBottomNavIndex.value,
           onTap: controller.changeBottomNavIndex,
-          iconSize: 34, // Increased icon size
-          selectedItemColor: Get.theme.colorScheme.primary.withOpacity(0.9), // More vibrant color
-          unselectedItemColor: Colors.grey.shade700, // Higher contrast
+          iconSize: 40, // Increased icon size
+          selectedItemColor: Theme.of(context).brightness == Brightness.dark ? Colors.orange : null,
+          unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
           selectedLabelStyle: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w900, // Extra bold
-            letterSpacing: 0.8,
-            shadows: [Shadow(color: Colors.black12, blurRadius: 2)], // Subtle text shadow
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
           unselectedLabelStyle: TextStyle(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600, // Semi-bold for unselected
+            fontSize: 14,
           ),
           elevation: 8, // Add shadow to bar
           type: BottomNavigationBarType.fixed, // Better visual consistency
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt),
+              icon: Icon(Icons.list_alt, color: Get.theme.colorScheme.onSurface.withOpacity(0.6)),
+              activeIcon: Icon(Icons.list_alt,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Get.theme.colorScheme.primary),
               label: "Active",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.done_all),
+              icon: Icon(Icons.done_all, color: Get.theme.colorScheme.onSurface.withOpacity(0.6)),
+              activeIcon: Icon(Icons.done_all,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Get.theme.colorScheme.primary),
               label: "Finished",
             ),
           ],
@@ -103,7 +112,11 @@ class HomeView extends GetView<HomeController> {
     return Tab(
       child: Text(
         name,
-        style: GoogleFonts.pangolin(fontSize: 18.sp), // Responsive font size
+        style: TextStyle(
+          fontSize: 18.sp,
+          fontFamily: 'Roboto',
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
@@ -202,7 +215,13 @@ class HomeView extends GetView<HomeController> {
                 )
               : null,
           // Trailing delete icon (visual cue, action handled by Dismissible)
-          trailing: Icon(Icons.delete_outline, color: Colors.grey[400]),
+          trailing: Builder(
+            builder: (context) => Icon(
+              Icons.delete_outline,
+              color:
+                  Theme.of(context).brightness == Brightness.light ? Colors.red : Colors.grey[400],
+            ),
+          ),
         ),
       ),
     );

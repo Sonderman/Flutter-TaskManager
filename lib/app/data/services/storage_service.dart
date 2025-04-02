@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart'; // Import RxInt
 import 'package:get_storage/get_storage.dart';
 import 'package:taskmanager/app/data/models/task_model.dart';
+import 'package:taskmanager/app_config.dart';
 
 /// Service class for managing task data persistence using GetStorage.
 ///
@@ -9,8 +11,8 @@ class StorageService {
   /// The GetStorage container instance used for storing tasks.
   late final GetStorage _box;
 
-  /// The key used to store the list of tasks within the GetStorage container.
-  final String _tasksKey = 'tasks';
+  /// Reactive counter to notify listeners of data changes.
+  final RxInt taskChangeCounter = 0.obs;
 
   StorageService() {
     _box = GetStorage();
@@ -22,7 +24,7 @@ class StorageService {
   List<Task> getTasks() {
     // Read the raw data from storage using the _tasksKey.
     // It's expected to be a List<dynamic>, where each element is a Map<String, dynamic>.
-    final List<dynamic>? tasksData = _box.read<List<dynamic>>(_tasksKey);
+    final List<dynamic>? tasksData = _box.read<List<dynamic>>(tasksKey);
 
     if (tasksData != null) {
       try {
@@ -51,7 +53,7 @@ class StorageService {
     // Convert the list of Task objects into a list of JSON maps.
     final List<Map<String, dynamic>> tasksData = tasks.map((task) => task.toJson()).toList();
     // Write the list of maps to storage under the _tasksKey.
-    await _box.write(_tasksKey, tasksData);
+    await _box.write(tasksKey, tasksData);
   }
 
   /// Adds a new task to the storage.
@@ -64,6 +66,8 @@ class StorageService {
     tasks.add(task);
     // Save the updated list back to storage.
     await saveTasks(tasks);
+    // Notify listeners
+    taskChangeCounter.value++;
   }
 
   /// Updates an existing task in the storage.
@@ -80,6 +84,8 @@ class StorageService {
       tasks[index] = task;
       // Save the updated list back to storage.
       await saveTasks(tasks);
+      // Notify listeners
+      taskChangeCounter.value++;
       if (kDebugMode) {
         print('Task updated: ${task.id}');
       }
@@ -100,6 +106,8 @@ class StorageService {
     tasks.removeWhere((t) => t.id == taskId);
     // Save the updated list back to storage.
     await saveTasks(tasks);
+    // Notify listeners
+    taskChangeCounter.value++;
     if (kDebugMode) {
       print('Task deleted: $taskId');
     }
@@ -109,7 +117,9 @@ class StorageService {
   ///
   /// Use with caution as this permanently removes all task data.
   Future<void> clearAllTasks() async {
-    await _box.remove(_tasksKey);
+    await _box.remove(tasksKey);
+    // Notify listeners
+    taskChangeCounter.value++;
     if (kDebugMode) {
       print('All tasks cleared.');
     }
