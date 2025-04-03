@@ -49,47 +49,52 @@ class CreateTaskView extends GetView<CreateTaskController> {
     );
   }
 
-  /// Builds the dropdown selector for choosing the task period.
+  /// Builds the segmented button selector for choosing the task period.
   Widget _buildPeriodSelector() {
-    // Obx makes the DropdownButton rebuild when controller.selectedPeriod changes.
-    return Obx(
-      () => DropdownButtonFormField<String>(
-        value: controller.selectedPeriod.value, // Current value from controller
-        // List of DropdownMenuItem widgets built from controller.periodOptions.
-        items:
-            controller.periodOptions.map((String period) {
-              return DropdownMenuItem<String>(
-                value: period,
-                child: Text(
-                  period,
-                  style: TextStyle(color: Get.isDarkMode ? null : Colors.black87),
-                ),
-              );
-            }).toList(),
-        selectedItemBuilder: (BuildContext context) {
-          return controller.periodOptions.map((String period) {
-            return Text(period, style: TextStyle(color: Get.isDarkMode ? null : Colors.black87));
-          }).toList();
-        },
-        // Callback function when a new period is selected.
-        onChanged: controller.changePeriod,
-        // Styling for the dropdown.
-        decoration: InputDecoration(
-          labelText: 'Task Period',
-          prefixIcon: const Icon(Icons.calendar_today_outlined),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ), // Responsive radius
-          contentPadding: EdgeInsets.symmetric(
-            vertical: 12.h,
-            horizontal: 16.w,
-          ), // Responsive padding
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 8.w, bottom: 8.h),
+          child: Text(
+            'Task Period',
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: Get.theme.colorScheme.onSurface.withOpacity(0.6),
+            ),
+          ),
         ),
-        // Style for the dropdown text.
-        style: TextStyle(fontSize: 16.sp), // Responsive font size
-        icon: const Icon(Icons.arrow_drop_down_rounded), // Dropdown icon
-        isExpanded: true, // Make dropdown take full width
-      ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Obx(
+              () => SegmentedButton<String>(
+                segments:
+                    controller.periodOptions.map((period) {
+                      return ButtonSegment<String>(
+                        value: period,
+                        label: Text(period, style: TextStyle(fontSize: 14.sp)),
+                        icon: Icon(
+                          period == 'Daily'
+                              ? Icons.calendar_view_day
+                              : period == 'Weekly'
+                              ? Icons.calendar_view_week
+                              : Icons.calendar_view_month,
+                          size: 20.sp,
+                        ),
+                      );
+                    }).toList(),
+                selected: {controller.selectedPeriod.value},
+                onSelectionChanged: (Set<String> newSelection) {
+                  controller.selectedPeriod.value = newSelection.first;
+                },
+                style: Theme.of(context).segmentedButtonTheme.style,
+                showSelectedIcon: true,
+                multiSelectionEnabled: false,
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 

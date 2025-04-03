@@ -26,10 +26,6 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   /// Reactive list containing all tasks loaded from storage.
   final RxList<Task> _allTasks = <Task>[].obs;
 
-  /// Reactive list containing tasks filtered for the currently selected view
-  /// (based on completion status and period tab).
-  final RxList<Task> filteredTasks = <Task>[].obs;
-
   /// Reactive index for the bottom navigation bar (0: Active Tasks, 1: Finished Tasks).
   final RxInt currentBottomNavIndex = 0.obs;
 
@@ -48,15 +44,13 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
     tabController = TabController(length: periods.length, vsync: this);
     // Load initial tasks from storage.
     _loadTasks();
-    // Add a listener to the TabController to update filtered tasks when the tab changes.
-    tabController.addListener(_filterTasks);
     // Add a listener to the list of all tasks. If the underlying data changes
-    // (e.g., after adding/deleting a task), refilter the list.
-    // _allTasks.listen((_) => _filterTasks()); // This listener might be redundant now
+    // (e.g., after adding/deleting a task), refresh the UI
+    _allTasks.listen((_) => update());
 
-    // Add a listener to the bottom navigation index to refilter when switching
-    // between active and finished tasks.
-    currentBottomNavIndex.listen((_) => _filterTasks());
+    // Add a listener to the bottom navigation index to trigger UI update when switching
+    // between active and finished tasks. The view will call getTasksForView.
+    currentBottomNavIndex.listen((_) => update());
 
     // --- NEW: Listen to changes in StorageService ---
     _storageService.taskChangeCounter.listen((_) {
@@ -75,29 +69,38 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
   /// Loads all tasks from the StorageService into the reactive [_allTasks] list.
   void _loadTasks() {
     _allTasks.assignAll(_storageService.getTasks());
-
-    // Initial filtering after loading tasks.
-    _filterTasks(); // Call filter initially
+    update(); // Trigger initial UI build
   }
 
-  /// Filters the [_allTasks] list based on the current bottom navigation index
-  /// (completion status) and the selected tab index (period).
-  /// Updates the reactive [filteredTasks] list.
-  void _filterTasks() {
-    // Determine the completion status based on the bottom navigation index.
+  /// Gets tasks filtered for the specified view
+  /// [period]: The period to filter by (Daily, Weekly, Monthly)
+  /// Returns a filtered and sorted list of tasks
+  List<Task> getTasksForView(String period) {
     final bool isFinished = currentBottomNavIndex.value == 1;
-    // Get the currently selected period from the TabController's index.
-    final String selectedPeriod = periods[tabController.index];
+    final now = DateTime.now();
 
-    // Filter the tasks and update the reactive list.
-    List<Task> currentlyFiltered =
+    // Filter the tasks
+    List<Task> filtered =
         _allTasks.where((task) {
-          return task.isDone == isFinished && task.period == selectedPeriod;
+          // First filter by completion status
+          if (task.isDone != isFinished) return false;
+
+          // Then filter by period and actual date matching
+          switch (period) {
+            case 'Daily':
+              return task.period == 'Daily' && task.isSameDate(now);
+            case 'Weekly':
+              return task.period == 'Weekly' && task.isInCurrentWeek();
+            case 'Monthly':
+              return task.period == 'Monthly' && task.isInCurrentMonth();
+            default:
+              return false;
+          }
         }).toList();
 
     // Sort daily tasks by time
-    if (selectedPeriod == "Daily") {
-      currentlyFiltered.sort((a, b) {
+    if (period == "Daily") {
+      filtered.sort((a, b) {
         if (a.time != null && b.time != null) {
           return a.time!.compareTo(b.time!);
         } else if (a.time != null) {
@@ -110,7 +113,7 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       });
     }
 
-    filteredTasks.assignAll(currentlyFiltered);
+    return filtered;
   }
 
   /// Changes the selected index of the bottom navigation bar.
@@ -166,9 +169,10 @@ class HomeController extends GetxController with GetSingleTickerProviderStateMix
       _allTasks[index] = task;
       _allTasks.refresh();
     } else {
+      // If task wasn't found locally, reload everything (edge case)
       _loadTasks();
     }
-    _filterTasks();
+    // UI update is handled by the _allTasks listener or currentBottomNavIndex listener
     Get.snackbar(
       'Success',
       '"${task.name}" marked as ${isDone ? "finished" : "active"}.',

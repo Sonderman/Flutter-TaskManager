@@ -62,4 +62,28 @@ class Task {
       'Done': isDone,
     };
   }
+
+  /// Returns the due date as DateTime based on rawTime
+  DateTime get dueDate => DateTime.fromMillisecondsSinceEpoch(rawTime);
+
+  /// Checks if the task is due on the same date as [otherDate]
+  bool isSameDate(DateTime otherDate) {
+    return dueDate.year == otherDate.year &&
+        dueDate.month == otherDate.month &&
+        dueDate.day == otherDate.day;
+  }
+
+  /// Checks if the task is due in the current week
+  bool isInCurrentWeek() {
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    return dueDate.isAfter(startOfWeek) && dueDate.isBefore(endOfWeek);
+  }
+
+  /// Checks if the task is due in the current month
+  bool isInCurrentMonth() {
+    final now = DateTime.now();
+    return dueDate.year == now.year && dueDate.month == now.month;
+  }
 }

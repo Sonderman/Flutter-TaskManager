@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:taskmanager/app/data/models/task_model.dart';
 import 'package:taskmanager/app/modules/home/controllers/home_controller.dart';
+import 'package:taskmanager/app/modules/home/views/keep_alive_wrapper.dart';
 
 /// The main view for the Home screen.
 ///
@@ -50,10 +51,18 @@ class HomeView extends GetView<HomeController> {
             ),
             Expanded(
               child: TabBarView(
-                controller: controller.tabController, // Link to the controller's TabController
+                controller: controller.tabController,
                 children:
                     controller.periods
-                        .map((_) => _buildTaskList()) // Build task list view for each tab
+                        .map(
+                          (period) => Obx(
+                            () => KeepAliveWrapper(
+                              key: ValueKey('${period}_${controller.currentBottomNavIndex.value}'),
+                              // Pass the period to the buildTaskList method
+                              child: _buildTaskList(period),
+                            ),
+                          ),
+                        )
                         .toList(),
               ),
             ),
@@ -121,13 +130,16 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  /// Builds the list view that displays tasks.
+  /// Builds the list view that displays tasks for the given period.
   ///
-  /// Uses Obx to reactively update the list when [controller.filteredTasks] changes.
-  Widget _buildTaskList() {
+  /// [period]: The period to display tasks for (Daily, Weekly, Monthly)
+  /// Uses Obx to reactively update the list when dependencies change (e.g., _allTasks, currentBottomNavIndex).
+  Widget _buildTaskList(String period) {
     return Obx(() {
+      // Get the filtered tasks for the specific period using the controller's getter
+      final tasks = controller.getTasksForView(period);
       // Show a message if the filtered list is empty
-      if (controller.filteredTasks.isEmpty) {
+      if (tasks.isEmpty) {
         return Center(
           child: Text(
             "No tasks found for this section.",
@@ -138,9 +150,11 @@ class HomeView extends GetView<HomeController> {
       // Build the list using ListView.separated
       return ListView.separated(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h), // Responsive padding
-        itemCount: controller.filteredTasks.length,
+        // Use the length of the locally fetched tasks list
+        itemCount: tasks.length,
         itemBuilder: (_, index) {
-          final task = controller.filteredTasks[index];
+          // Get the task from the locally fetched list
+          final task = tasks[index];
           return _buildTaskItem(task); // Build each task item
         },
         separatorBuilder: (_, index) => SizedBox(height: 10.h), // Responsive spacing
@@ -232,19 +246,6 @@ class HomeView extends GetView<HomeController> {
                               ? Colors.red
                               : Colors.grey[400],
                     ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Center(
-              child: Text(
-                'Swipe',
-                style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.white.withOpacity(0.2),
-                ),
               ),
             ),
           ),

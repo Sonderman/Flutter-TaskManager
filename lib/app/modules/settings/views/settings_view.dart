@@ -84,11 +84,30 @@ class SettingsView extends GetView<SettingsController> {
             SizedBox(height: 20.h),
             Obx(
               () => SwitchListTile(
-                title: Text('Enable Notifications'),
+                title: Text(
+                  'Enable Notifications',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                ),
                 value: controller.notificationsEnabled.value,
                 onChanged: controller.toggleNotifications,
-                secondary: Icon(Icons.notifications_active_outlined),
+                secondary: Icon(
+                  Icons.notifications_active_outlined,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
                 activeColor: Theme.of(context).colorScheme.primary,
+                activeTrackColor: Theme.of(context).colorScheme.primaryContainer,
+                inactiveThumbColor: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
+                inactiveTrackColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                thumbIcon: WidgetStateProperty.resolveWith<Icon?>((Set<WidgetState> states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Icon(Icons.check, color: Theme.of(context).colorScheme.onPrimary);
+                  }
+                  return null;
+                }),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
               ),
             ),
           ],
